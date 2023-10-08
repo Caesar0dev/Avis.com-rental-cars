@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/pupetter/node_modules
 /.pnp
 .pnp.js
 
