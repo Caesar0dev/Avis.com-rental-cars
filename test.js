@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 var targetDate = ""
-var start_date = "dadada"
-var end_date = "sasasa"
+let start_date = "dadada"
+let end_date = "sasasa"
 
 // Read the value from the file
 fs.readFile('selenium/transmition.txt', 'utf8', function(err, data) {
@@ -22,8 +22,6 @@ fs.readFile('selenium/transmition.txt', 'utf8', function(err, data) {
 console.log("start date >>> ", start_date);
 console.log("end date >>> ", end_date);
 
-var matchedCookie = "Cookie";
-var matchedPayload = "Payload";
 // const matchedMethod = "";
 
 async function launchBrowser() {
@@ -41,23 +39,18 @@ async function launchBrowser() {
     await page.setRequestInterception(true);
     // console.log("page set ---------------->");
     // Listen for the request event
+    let authorization = null;
+    let referer = null;
     page.on('request', async (request) => {
         
         if (!request.isNavigationRequest()) {
             // console.log("Ajax is here>>>>>>>>>>>>>>>>>>>>>>");
         
             // It's an AJAX request
-            if (request.url().includes('produce')) {
-                
-                matchedCookie = request.headers().cookie;
-                console.log('------------- matched cookie -----------------');
-                console.log(matchedCookie);
-                console.log("----------------------------------------------");
-
-                matchedPayload = request.postData();
-                console.log('------------- matched payload -----------------');
-                console.log(matchedPayload);
-                console.log("----------------------------------------------");
+            if (request.url().includes('https://bigspy.com/ecom/get-ecom-ads?')) {
+                authorization = request.headers().authorization;
+                referer = request.headers().referer;
+                console.log(request.headers())
             
             }
         }
@@ -82,27 +75,24 @@ async function launchBrowser() {
     });
     
     // Navigate to a page that triggers AJAX requests
-    await page.goto('https://vinesplus.com/collections/all', {
+    await page.goto('https://bigspy.com/adspy/youtube/?app_type=3', {
         timeout: 300000
     });
     
-    const data = {dfef: 'adf'}
     // Perform actions that trigger AJAX requests
-    await page.evaluate((data) => {
+    await page.evaluate((authorization) => {
         // $.post('Hello', data);
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'all', true);
-        console.log("HHHHHHHHHHHHHHHH");
+        xhr.open('POST', 'https://bigspy.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=4&category=&tag_ids=&ad_positions=&video_duration_type=&os=0&ads_promote_type=0&geo=&game_play=&game_style=&type=0&page=1&industry=3&language=&keyword=&sort_field=first_seen&region=&seen_begin=1689048000&seen_end=1696823999&original_flag=0&is_preorder=0&is_real_person=0&theme=&text_md5=&ads_size=0&ads_format=0&exclude_keyword=&cod_flag=0&is_theater=0&cta_type=0&new_ads_flag=0&like_begin=&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=1&page_load_more=1&source_app=&redirect_filter_type=0', true);
         // xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('Cookie', matchedCookie);
+        xhr.setRequestHeader({'authorization': authorization, 'referer': referer});
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
             console.log('Response:', xhr.responseText);
             }
         };
-        xhr.send(JSON.stringify(data));
-    }, data)
-
+        xhr.send();
+    }, authorization)
 
 
 
