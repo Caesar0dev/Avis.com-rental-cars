@@ -1,7 +1,29 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+var targetDate = ""
+var start_date = "dadada"
+var end_date = "sasasa"
+
+// Read the value from the file
+fs.readFile('selenium/transmition.txt', 'utf8', function(err, data) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    
+    // Use the value in your Node.js script
+    const jsString = data;
+    console.log(">>>>>>>>>>>>>>>>>>>>>> ", jsString);
+    targetDate = JSON.parse(jsString);
+    start_date = targetDate.start_date;
+    end_date = targetDate.end_date;
+});
+
+console.log("start date >>> ", start_date);
+console.log("end date >>> ", end_date);
 
 var matchedCookie = "Cookie";
-var matchedPayload = "Cookie";
+var matchedPayload = "Payload";
 // const matchedMethod = "";
 
 async function launchBrowser() {
@@ -60,7 +82,7 @@ async function launchBrowser() {
     });
     
     // Navigate to a page that triggers AJAX requests
-    await page.goto('https://vinesplus.com/collections/wine-accessories', {
+    await page.goto('https://vinesplus.com/collections/all', {
         timeout: 300000
     });
     
@@ -69,9 +91,10 @@ async function launchBrowser() {
     await page.evaluate((data) => {
         // $.post('Hello', data);
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'HHHHHHHHHHHHHH', true);
+        xhr.open('POST', 'all', true);
         console.log("HHHHHHHHHHHHHHHH");
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        // xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Cookie', matchedCookie);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
             console.log('Response:', xhr.responseText);

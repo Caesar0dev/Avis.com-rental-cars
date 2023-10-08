@@ -34,18 +34,29 @@ middle_end_date = str(endDate).split(" ")[0]
 end_date = middle_end_date.split("-")[1] + "/" + middle_end_date.split("-")[2] + "/" + middle_end_date.split("-")[0]
 print("end_date >>> ", end_date) ################## data to send
 
+transDate = '{"start_date":"' + start_date + '", "end_date":"' + end_date + '"}'
+
+with open('transmition.txt', 'w') as file:
+  file.write(str(transDate))
+
+
+searchkey = []
+
 with open('fullLocation.csv', mode='r') as file:
   reader = csv.reader(file)
   for row in reader:
     targetLocation = row[2].split("/")[-1]
-    print(">>>>>>>>>>>>>", targetLocation) ################### data to send
+    # print(">>>>>>>>>>>>>", targetLocation) ################### data to send
+    searchkey.append(targetLocation)
+
+print("searchkey >>> ", searchkey)
 
 
+driver = Driver(uc=True)
 
+driver.maximize_window()
 
-# driver = Driver(uc=True)
-
-# driver.maximize_window()
-
-# driver.get("https://www.avis.com/")
-# print(">>> Successful")
+driver.get("https://vinesplus.com/")
+productButton = driver.find_element(By.XPATH, '//*[@id="shopify-section-header"]/sticky-header/header/nav/ul/li[2]/a/span')
+productButton.click()
+print(">>> Page load Successfully!")

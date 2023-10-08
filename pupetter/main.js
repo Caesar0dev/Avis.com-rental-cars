@@ -19,11 +19,15 @@ const main = async (app) => {
 
     app.get('/test', async (req, res) => {
         try{
+            // const { url } = req.query;
             const { url } = req.body;
             // Navigate to a webpage
             await page.goto(url, { timeout: 30000 });
             // Capture a screenshot
-            await page.screenshot({ path: 'screenshot.png' });
+            await page.screenshot({ path: 'screenshot1.png' });
+            ///////// create new ajax /////////////////
+
+            ///////////////////////////////////////////
             res.send(';)');
         }catch(err){
             console.log(err)
