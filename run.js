@@ -33,37 +33,36 @@ for (row in lines) {
 
 ///////////////////// preparation end ////////////////////////
 
-(async () => {
-    // Launch a new browser instance
-    const browser = await puppeteer.launch();
+const openPage = async (page) => {
+
+    
+    // // Launch a new browser instance
+    // const browser = await puppeteer.launch({headless: false});
   
-    // Create a new page/tab
-    const page = await browser.newPage();
+    // // Create a new page/tab
+    // const page = await browser.newPage();
   
     // Navigate to the website with the form
     await page.goto('https://www.google.com/ncr');
+
+    await page.waitForSelector('#APjFqb', {timeout: 300000});
+    await page.type('#APjFqb', 'japan time');
+    await page.click('button[type="submit"]')
   
-    // Fill in the form fields          //*[@id="APjFqb"]
-    // Find the input element using XPath
-    const inputXPath = '//*[@id="APjFqb"]';
-    const inputElement = (await page.$x(inputXPath))[0];
+    // // Fill in the form fields          //*[@id="APjFqb"]
+    // // Find the input element using XPath
+    // const inputXPath = '//*[@id="APjFqb"]';
+    // const inputElement = (await page.$x(inputXPath))[0];
     
-    // Input data into the element
-    const inputData = 'tokyo time';
-    await inputElement.type(inputData);
+    // // Input data into the element
+    // const inputData = 'tokyo time';
+    // await inputElement.type(inputData);
     
     // await page.click('/html/body/div[1]/div[3]/form/div[1]/div[1]/div[2]/div[2]/div[6]/center/input[1]');
-    const elementXPath = '/html/body/div[1]/div[3]/form/div[1]/div[1]/div[2]/div[2]/div[6]/center/input[1]';
+    // const elementXPath = '/html/body/div[1]/div[3]/form/div[1]/div[1]/div[2]/div[2]/div[5]/center/input[1]';
     
-    const elementHandle = await page.waitForXPath(elementXPath, { timeout: 50000 });
-    await elementHandle.click();
-  
-    // // Wait for the form submission to complete
-    // await page.waitForNavigation();
-  
-    // // Capture a screenshot of the resulting page
-    // await page.screenshot({ path: 'form_submission.png' });
-  
-    // // Close the browser
-    // await browser.close();
-  })();
+    // const elementHandle = await page.waitForSelector('/html/body/div[1]/div[3]/form/div[1]/div[1]/div[2]/div[2]/div[5]/center/input[1]', {timeout: 300000});
+    // const elementHandle = (await page.$x(elementXPath))[0];
+    // await elementHandle.click();
+
+  }

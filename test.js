@@ -51,7 +51,6 @@ async function launchBrowser() {
                 authorization = request.headers().authorization;
                 referer = request.headers().referer;
                 console.log(request.headers())
-            
             }
         }
         
