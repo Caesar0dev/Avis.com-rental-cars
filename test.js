@@ -1,26 +1,33 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-var targetDate = ""
-let start_date = "dadada"
-let end_date = "sasasa"
 
-// Read the value from the file
-fs.readFile('selenium/transmition.txt', 'utf8', function(err, data) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    
-    // Use the value in your Node.js script
-    const jsString = data;
-    console.log(">>>>>>>>>>>>>>>>>>>>>> ", jsString);
-    targetDate = JSON.parse(jsString);
-    start_date = targetDate.start_date;
-    end_date = targetDate.end_date;
-});
+const start_date = process.argv[2];
+const givenDate = new Date(start_date);
+const newDate = new Date(givenDate);
+newDate.setDate(givenDate.getDate() + 330);
+const formattedDate = newDate.toISOString().split('T')[0];
+const end_date = formattedDate.split("-")[1] + "/" + formattedDate.split("-")[2] + "/" + formattedDate.split("-")[0];
+
+// Read the text file
+const filePath = 'location origin.csv';
+const text = fs.readFileSync(filePath, 'utf8');
+
+// Perform scraping logic on the text data
+// Here's an example of counting the number of lines in the text file
+const lines = text.split('\n');
+
+let searchKey = null;
+for (row in lines) {
+    const searchKeyMiddle = lines[row].split("/");
+    // console.log(searchKeyMiddle);
+    searchKey = searchKeyMiddle[searchKeyMiddle.length-1].split(",")[0];
+    console.log(searchKey);
+}
 
 console.log("start date >>> ", start_date);
 console.log("end date >>> ", end_date);
+
+///////////////////// preparation end ////////////////////////
 
 // const matchedMethod = "";
 

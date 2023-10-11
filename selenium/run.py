@@ -15,6 +15,8 @@ from seleniumbase import Driver
 import time
 import csv
 from datetime import datetime, timedelta
+from seleniumwire import webdriver
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('message', help='A message to display')
@@ -52,11 +54,26 @@ with open('fullLocation.csv', mode='r') as file:
 print("searchkey >>> ", searchkey)
 
 
-driver = Driver(uc=True)
 
-driver.maximize_window()
 
-driver.get("https://vinesplus.com/")
-productButton = driver.find_element(By.XPATH, '//*[@id="shopify-section-header"]/sticky-header/header/nav/ul/li[2]/a/span')
-productButton.click()
-print(">>> Page load Successfully!")
+# driver = Driver(uc=True)
+
+# driver.maximize_window()
+
+# driver.get("https://vinesplus.com/")
+# productButton = driver.find_element(By.XPATH, '//*[@id="shopify-section-header"]/sticky-header/header/nav/ul/li[2]/a/span')
+# productButton.click()
+# print(">>> Page load Successfully!")
+
+
+driver = webdriver.Firefox()
+# driver = webdriver.Chrome()
+# driver = webdriver.Safari(seleniumwire_options = {'port':12345})
+# driver = webdriver.Edge(seleniumwire_options = {'port':12345})
+driver.get('https://www.google.com')
+for request in driver.requests:
+  if request.response:
+    print(
+      request.url,
+      request.response.status_code,
+    )

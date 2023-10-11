@@ -35,7 +35,7 @@ for (row in lines) {
 
 const openPage = async (page) => {
 
-    
+
     // // Launch a new browser instance
     // const browser = await puppeteer.launch({headless: false});
   
@@ -44,6 +44,7 @@ const openPage = async (page) => {
   
     // Navigate to the website with the form
     await page.goto('https://www.google.com/ncr');
+    
 
     await page.waitForSelector('#APjFqb', {timeout: 300000});
     await page.type('#APjFqb', 'japan time');
