@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer');
+// var cookie = require('cookie-parse');
 const fs = require('fs');
+const e = require("express");
 
 const start_date = process.argv[2];
 const givenDate = new Date(start_date);
@@ -19,9 +21,8 @@ const lines = text.split('\n');
 let searchKey = null;
 for (row in lines) {
     const searchKeyMiddle = lines[row].split("/");
-    // console.log(searchKeyMiddle);
-    searchKey = searchKeyMiddle[searchKeyMiddle.length-1].split(",")[0];
-    console.log(searchKey);
+    searchKey = searchKeyMiddle[searchKeyMiddle.length - 1].split(",")[0];
+    // console.log(searchKey);
 }
 
 console.log("start date >>> ", start_date);
@@ -29,10 +30,16 @@ console.log("end date >>> ", end_date);
 
 ///////////////////// preparation end ////////////////////////
 
-// const matchedMethod = "";
 
-async function launchBrowser() {
-    // console.log("started---------------->");
+async function launchBrowser(name, value) {
+
+    let Digital_Token = null;
+    let RecaptchaResponse = null;
+    let Cookie = null;
+    let newResponse = null;
+    let BasicPayload = null;
+    let NewPayload = null;
+
     const browser = await puppeteer.launch({
         headless: false, // Use the new Headless mode
         // ... other options
@@ -40,69 +47,117 @@ async function launchBrowser() {
 
     // Rest of your code using the browser instance
     const page = await browser.newPage();
-    // console.log("page ---------------->");
 
     // Enable request interception
     await page.setRequestInterception(true);
-    // console.log("page set ---------------->");
+
     // Listen for the request event
-    let authorization = null;
-    let referer = null;
+
     page.on('request', async (request) => {
-        
+
         if (!request.isNavigationRequest()) {
-            // console.log("Ajax is here>>>>>>>>>>>>>>>>>>>>>>");
-        
+
             // It's an AJAX request
-            if (request.url().includes('https://bigspy.com/ecom/get-ecom-ads?')) {
-                authorization = request.headers().authorization;
-                referer = request.headers().referer;
-                console.log(request.headers())
+            if (request.url().includes('https://www.avis.com/webapi/reservation/vehicles')) {
+                console.log("request >>> ", request.headers())
+                
+                BasicPayload = request.postData();
+                console.log("Payload >>> ", BasicPayload);
+                
+                if(BasicPayload) {
+                    Digital_Token = request.headers()['digital-token'];
+                    console.log("Digital Token >>> ", Digital_Token);
+                    Cookie = request.headers().cookie;
+                    // console.log("Cookie >>> ", Cookie);
+                    RecaptchaResponse = request.headers()['g-recaptcha-response'];
+                    console.log("Recaptcha Response >>> ", RecaptchaResponse);
+
+                    const payloadElements = BasicPayload.split(",");
+                    for (index in payloadElements) {
+                        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>> ", payloadElements[index]);
+                        if(payloadElements[index].indexOf("pickInfo") > 0) {
+                            payloadElements[index] = '"pickInfo":"'+ searchKey +'"';
+                            // console.log(">>>>>>>>>>>>>pickInfo>>>>>>>>>>>>>>>>> ", payloadElements[index]);
+                        };
+                        if(payloadElements[index].indexOf("pickDate") > 0) {
+                            payloadElements[index] = '"pickDate":"'+ start_date +'"';
+                            // console.log(">>>>>>>>>>>>>>start date>>>>>>>>>>>>>>>> ", payloadElements[index]);
+                        };
+                        if(payloadElements[index].indexOf("dropDate") > 0) {
+                            payloadElements[index] = '"dropDate":"'+ end_date +'"';
+                            // console.log(">>>>>>>>>>>>>>>end date>>>>>>>>>>>>>>> ", payloadElements[index]);
+                        };
+                        NewPayload = NewPayload + payloadElements[index];
+                    }
+                    
+                    console.log("NewPayload >>> ", NewPayload);
+                }
             }
         }
-        
-        // if (request.url() === 'https://vinesplus.com/.well-known/shopify/monorail/v1/produce') {
-        //     const response = await request.continue();
-        //     const responseData = await response.text();
-        //     console.log('------------- matched response -----------------');
-        //     console.log(responseData);
-        //     console.log('------------------------------------------------');
-
-        // } else {
-        //     request.continue();
-        // }
         request.continue();
-
     });
 
-    // Intercept the request and get the response
-    page.on('request', async (request) => {
-        
-    });
-    
     // Navigate to a page that triggers AJAX requests
-    await page.goto('https://bigspy.com/adspy/youtube/?app_type=3', {
+    await page.goto('https://www.avis.com', {
         timeout: 300000
     });
-    
+
+    await page.waitForSelector('#PicLoc_value', {timeout: 300000});
+    await page.type('#PicLoc_value', 'anb');
+    await page.$eval('#from', (element) => {
+        element.value = '11/01/2023';
+    });
+    const endDateField = await page.waitForSelector('#to', {timeout: 300000});
+    await endDateField.click({timeout: 300000});
+    const endDateXPath = '/html/body/div[9]/div/div/div/div/div[3]/table/tbody/tr[4]/td[5]/a';
+    const [end_day] = await page.$x(endDateXPath);
+    await end_day.click({timeout: 300000});
+    console.log(">>> end date clicked successfully !!!");
+    await page.evaluate(async() => {
+        await new Promise(function(resolve) { 
+               setTimeout(resolve, 1000)
+        });
+    });
+    const findButton = await page.waitForSelector('#res-home-select-car', {timeout: 300000});
+    await findButton.click({timeout: 300000});
+    console.log(">>> submit button clicked successfully !!!");
+
     // Perform actions that trigger AJAX requests
-    await page.evaluate((authorization) => {
-        // $.post('Hello', data);
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://bigspy.com/ecom/get-ecom-ads?favorite_app_flag=0&ecom_category=&search_type=1&platform=4&category=&tag_ids=&ad_positions=&video_duration_type=&os=0&ads_promote_type=0&geo=&game_play=&game_style=&type=0&page=1&industry=3&language=&keyword=&sort_field=first_seen&region=&seen_begin=1689048000&seen_end=1696823999&original_flag=0&is_preorder=0&is_real_person=0&theme=&text_md5=&ads_size=0&ads_format=0&exclude_keyword=&cod_flag=0&is_theater=0&cta_type=0&new_ads_flag=0&like_begin=&like_end=&comment_begin=&comment_end=&share_begin=&share_end=&position=0&is_hide_advertiser=0&advertiser_key=&dynamic=0&shopping=0&duplicate=0&software_types=&ecom_types=&social_account=&modules=ecomad&page_id=&landing_type=0&is_first=1&page_load_more=1&source_app=&redirect_filter_type=0', true);
-        // xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader({'authorization': authorization, 'referer': referer});
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log('Response:', xhr.responseText);
-            }
-        };
-        xhr.send();
-    }, authorization)
+    const result = await page.evaluate((Digital_Token, Cookie, RecaptchaResponse, NewPayload) => {
+        
+        if (Digital_Token) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://www.avis.com/webapi/reservation/vehicles', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('digital-token', Digital_Token);
+            xhr.setRequestHeader('cookie', Cookie);
+            xhr.setRequestHeader('g-recaptcha-response', RecaptchaResponse);
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.info('success: ', xhr.responseText);
+                        newResponse = JSON.parse(xhr.responseText);
+                        console.log(">>>>>>>>>>>", newResponse);
+                    } else {
+                        console.error('error: ', xhr.statusText);
+                    }
+                }
+            };
+            xhr.onerror = () => xhr.statusText;
+            xhr.send(NewPayload);
+        }
 
+    }, Digital_Token, Cookie, RecaptchaResponse, NewPayload)
 
+    console.log('eval res->', result)
+    // AJAX requests end
 
+    /////////////////////////////////////////////////////
+    
+    //////////////////////////////////////////////////////////
     // await browser.close();
 }
 
-launchBrowser();
+launchBrowser()
+    .then(res => console.info('end---> ', res))
+    .catch(err => console.error('err--->', err));
