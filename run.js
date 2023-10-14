@@ -64,57 +64,23 @@ async function launchBrowser(start_date, end_date, searchKey) {
     // Rest of your code using the browser instance
     const page = await browser.newPage();
 
-    // Enable request interception
-    await page.setRequestInterception(true);
-
     // Listen for the request event
-
-    page.on('request', async (request) => {
-
-        if (!request.isNavigationRequest()) {
-
-            // It's an AJAX request
+    page.on('response', async (response) => {
+        const request = response.request();
+        if (request.resourceType() === 'xhr') {
             if (request.url().includes('https://www.avis.com/webapi/reservation/vehicles')) {
-                // console.log("request >>> ", request.headers())
-                
-                BasicPayload = request.postData();
-                // console.log("Payload >>> ", BasicPayload);
-                
-                if(BasicPayload) {
-                    Digital_Token = request.headers()['digital-token'];
-                    // console.log("Digital Token >>> ", Digital_Token);
-                    Cookie = request.headers().cookie;
-                    // console.log("Cookie >>> ", Cookie);
-                    RecaptchaResponse = request.headers()['g-recaptcha-response'];
-                    // console.log("Recaptcha Response >>> ", RecaptchaResponse);
-
-                    const payloadElements = BasicPayload.split(",");
-                    for (index in payloadElements) {
-                        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>> ", payloadElements[index]);
-                        if(payloadElements[index].indexOf("pickInfo") > 0) {
-                            payloadElements[index] = '"pickInfo":"'+ searchKey +'"';
-                            // console.log(">>>>>>>>>>>>>pickInfo>>>>>>>>>>>>>>>>> ", payloadElements[index]);
-                        };
-                        if(payloadElements[index].indexOf("pickDate") > 0) {
-                            payloadElements[index] = '"pickDate":"'+ start_date +'"';
-                            // console.log(">>>>>>>>>>>>>>start date>>>>>>>>>>>>>>>> ", payloadElements[index]);
-                        };
-                        if(payloadElements[index].indexOf("dropDate") > 0) {
-                            payloadElements[index] = '"dropDate":"'+ end_date +'"';
-                            // console.log(">>>>>>>>>>>>>>>end date>>>>>>>>>>>>>>> ", payloadElements[index]);
-                        };
-                        NewPayload = NewPayload + payloadElements[index];
-                    }
-                    
-                    // console.log("NewPayload >>> ", NewPayload);
+                try {
+                    const responseBody = await response.json(); // or response.text() if it's not a JSON response
+                    console.log('AJAX Response:', responseBody);
+                } catch (error) {
+                    console.error('Failed to read response body:', error);
                 }
             }
         }
-        request.continue();
     });
 
     // Navigate to a page that triggers AJAX requests
-    await page.goto('https://www.avis.com', {
+    await page.goto('https://www.avis.com/en/home', {
         timeout: 300000
     });
 
@@ -175,75 +141,8 @@ async function launchBrowser(start_date, end_date, searchKey) {
     const findButton = await page.waitForSelector('#res-home-select-car', {timeout: 300000});
     await findButton.click({timeout: 300000});
     console.log(">>> submit button clicked successfully !!!");
-
-    // Perform actions that trigger AJAX requests
     
-    // Delay for 10 seconds
-    await delay(20000); // 10,000 milliseconds = 10 seconds
-    setTimeout(async () => {
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        
-        // page.on('response', async (interceptedResponse) => {
-        //     const requestUrl = interceptedResponse.url();
-        //     if (requestUrl === 'https://www.avis.com/webapi/reservation/vehicles') { // Specify the URL you want to intercept
-        //         const modifiedHeaders = interceptedResponse.headers(); // Get the original headers
-        //         modifiedHeaders['digital-token'] = Digital_Token; // Modify the headers as desired
-        //         const responseBody = await interceptedResponse.buffer();
-                
-        //         // Create a new response with modified headers
-        //         const modifiedResponse = {
-        //             status: interceptedResponse.status(),
-        //             headers: modifiedHeaders,
-        //             body: responseBody
-        //         };
-
-        //         interceptedResponse.respond(modifiedResponse); // Respond with the modified response
-        //     }
-        // });
-
-        const result = await page.evaluate((Digital_Token, Cookie, RecaptchaResponse, NewPayload) => {
-            console.log("Digital Token >>> ", Digital_Token);
-            
-            if (Digital_Token) {
-                console.log("---------------------------Digital token okay!!!-----------------------------")
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://www.avis.com/webapi/reservation/vehicles', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
-                xhr.setRequestHeader('Action', 'RES_VEHICLESHOP');
-                xhr.setRequestHeader('Bookingtype', 'Digital');
-                xhr.setRequestHeader('Content-Length', 622);
-                xhr.setRequestHeader('Channel', 'car');
-                xhr.setRequestHeader('digital-token', Digital_Token);
-                xhr.setRequestHeader('g-recaptcha-response', RecaptchaResponse);
-                xhr.setRequestHeader('cookie', Cookie);
-                console.log("new request >>> ", xhr);
-                xhr.onreadystatechange = () => {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            console.info('success: ', xhr.responseText);
-                            newResponse = JSON.parse(xhr.responseText);
-                            console.log(">>>>>>>>>>>", newResponse);
-                        } else {
-                            console.error('error: ', xhr.statusText);
-                        }
-                    }
-                };
-                xhr.onerror = () => xhr.statusText;
-                xhr.send(NewPayload);
-            }
-    
-        }, Digital_Token, Cookie, RecaptchaResponse, NewPayload)
-    
-        console.log('eval res->', result)
-        // AJAX requests end
-
-    }, 20000);
-
-    /////////////////////////////////////////////////////
-    
-    //////////////////////////////////////////////////////////
-    // await browser.close();
+    await browser.close();
 }
 
 launchBrowser()
