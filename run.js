@@ -112,11 +112,8 @@ async function launchBrowser(name, value) {
     const [end_day] = await page.$x(endDateXPath);
     await end_day.click({timeout: 300000});
     console.log(">>> end date clicked successfully !!!");
-    await page.evaluate(async() => {
-        await new Promise(function(resolve) { 
-               setTimeout(resolve, 1000)
-        });
-    });
+    
+    
     const findButton = await page.waitForSelector('#res-home-select-car', {timeout: 300000});
     await findButton.click({timeout: 300000});
     console.log(">>> submit button clicked successfully !!!");
