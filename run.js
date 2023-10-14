@@ -14,7 +14,7 @@ const text = fs.readFileSync(filePath, 'utf8');
 const lines = text.split('\n');
 
 let searchKey = null;
-let start_date = null;
+var start_date = null;
 let end_date = null;
 // let index = 0;
 
@@ -46,8 +46,9 @@ for (let i = 1; i < 31; i++) {
 }
 ///////////////////// preparation end ////////////////////////
 
-async function launchBrowser(name, value) {
+async function launchBrowser(start_date, end_date, searchKey) {
 
+    // console.log("start date >>> ", start_date);
     let Digital_Token = null;
     let RecaptchaResponse = null;
     let Cookie = null;
@@ -146,24 +147,28 @@ async function launchBrowser(name, value) {
     }
 
     await page.waitForSelector('#PicLoc_value', {timeout: 300000});
-    await page.type('#PicLoc_value', 'anb');
+    await page.type('#PicLoc_value', 'shr');
     await page.$eval('#from', (element) => {
         element.value = '11/01/2023';
     });
     
     // Delay for 10 seconds
     await delay(3000); // 10,000 milliseconds = 10 seconds
-    const endDateField = await page.waitForSelector('#to', {timeout: 300000});
-    console.log('step 2', endDateField)
-    await endDateField.click({timeout: 300000});
-    
-    // Delay for 10 seconds
-    await delay(3000); // 10,000 milliseconds = 10 seconds
 
-    const endDateXPath = '/html/body/div[9]/div/div/div/div/div[3]/table/tbody/tr[4]/td[5]/a';
-    const [end_day] = await page.$x(endDateXPath);
-    await end_day.click({timeout: 300000});
+    // const endDateField = await page.waitForSelector('#to', {timeout: 300000});
+    // console.log('step 2', endDateField)
+    // await endDateField.click({timeout: 300000});
     
+    // // Delay for 10 seconds
+    // await delay(3000); // 10,000 milliseconds = 10 seconds
+
+    // const endDateXPath = '/html/body/div[9]/div/div/div/div/div[3]/table/tbody/tr[4]/td[5]/a';
+    // const [end_day] = await page.$x(endDateXPath);
+    // await end_day.click({timeout: 300000});
+    
+    await page.$eval('#to', (element) => {
+        element.value = '10/24/2024';
+    });
     // Delay for 10 seconds
     await delay(3000); // 10,000 milliseconds = 10 seconds
 
@@ -177,6 +182,25 @@ async function launchBrowser(name, value) {
     await delay(20000); // 10,000 milliseconds = 10 seconds
     setTimeout(async () => {
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        
+        // page.on('response', async (interceptedResponse) => {
+        //     const requestUrl = interceptedResponse.url();
+        //     if (requestUrl === 'https://www.avis.com/webapi/reservation/vehicles') { // Specify the URL you want to intercept
+        //         const modifiedHeaders = interceptedResponse.headers(); // Get the original headers
+        //         modifiedHeaders['digital-token'] = Digital_Token; // Modify the headers as desired
+        //         const responseBody = await interceptedResponse.buffer();
+                
+        //         // Create a new response with modified headers
+        //         const modifiedResponse = {
+        //             status: interceptedResponse.status(),
+        //             headers: modifiedHeaders,
+        //             body: responseBody
+        //         };
+
+        //         interceptedResponse.respond(modifiedResponse); // Respond with the modified response
+        //     }
+        // });
+
         const result = await page.evaluate((Digital_Token, Cookie, RecaptchaResponse, NewPayload) => {
             console.log("Digital Token >>> ", Digital_Token);
             
