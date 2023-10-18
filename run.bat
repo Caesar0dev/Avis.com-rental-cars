@@ -1,1 +1,1 @@
-node run2.js 2023-11
+node run.js 2023-11
