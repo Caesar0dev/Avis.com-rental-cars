@@ -5,18 +5,18 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const e = require("express");
 
 let givenDate = process.argv[2];
-const csvFilePath = 'fullLocation.csv';
+const csvFilePath = 'test.csv';
 
 let countNum = 0;
 
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 3; i++) {
     countNum = countNum + 1;
     const newDate = new Date(givenDate+"-01");
-    newDate.setDate(newDate.getDate() + i);
-    const startDate = newDate.toISOString().split('T')[0];
+    const newStartDate = new Date(newDate.getDate() + i);
+    const startDate = newStartDate.toISOString().split('T')[0];
     const start_date = startDate.split("-")[1] + "/" + startDate.split("-")[2] + "/" + startDate.split("-")[0];
-    newDate.setDate(newDate.getDate() + 330);
-    const endDate = newDate.toISOString().split('T')[0];
+    const newEndDate = new Date(newStartDate.getDate() + 330);
+    const endDate = newEndDate.toISOString().split('T')[0];
     const end_date = endDate.split("-")[1] + "/" + endDate.split("-")[2] + "/" + endDate.split("-")[0];
     console.log("start date >>> ", start_date);
     console.log("end date >>> ", end_date);
@@ -104,7 +104,6 @@ for (let i = 0; i < 30; i++) {
                     return new Promise((resolve) => setTimeout(resolve, ms));
                 }
                 
-                // Delay for 10 seconds
                 // await delay(3000); // 10,000 milliseconds = 10 seconds
                 let modalXPath = '/html/body/div[4]/section/div[2]/div[1]/span';
                 try {
@@ -114,7 +113,6 @@ for (let i = 0; i < 30; i++) {
                     console.log(error);
                 }
                 
-                // Delay for 10 seconds
                 // await delay(3000); // 10,000 milliseconds = 10 seconds
                 let secModalXPath = '/html/body/div[4]/section/div[1]/div[1]/span';
                 try {
@@ -130,25 +128,20 @@ for (let i = 0; i < 30; i++) {
                     element.value = "10/15/2023";
                 });
                 
-                // Delay for 10 seconds
                 await delay(3000); // 10,000 milliseconds = 10 seconds
                 const endDateField = await page.waitForSelector('#to', {timeout: 300000});
-                // console.log('step 2', endDateField)
                 await endDateField.click({timeout: 300000});
                 
-                // Delay for 10 seconds
                 await delay(3000); // 10,000 milliseconds = 10 seconds
                 const endDateXPath = '//*[@id="ui-datepicker-div"]/div[3]/table/tbody/tr[1]/td[4]/a';
                 const [end_day] = await page.$x(endDateXPath);
                 await end_day.click({timeout: 300000});
                 
-                // Delay for 10 seconds
                 await delay(3000); // 10,000 milliseconds = 10 seconds
                 
                 const findButton = await page.waitForSelector('#res-home-select-car', {timeout: 300000});
                 await findButton.click({timeout: 300000});
                 
-                // Delay for 10 seconds
                 await delay(3000); // 10,000 milliseconds = 10 seconds
                 
                 fetch("https://www.avis.com/webapi/reservation/vehicles", {
