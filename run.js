@@ -5,11 +5,11 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const e = require("express");
 
 let givenDate = process.argv[2];
-const csvFilePath = 'test.csv';
+const csvFilePath = 'fullLocation.csv';
 
 let countNum = 0;
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 31; i++) {
     countNum = countNum + 1;
     const newDate = new Date(givenDate+"-01");
     const newStartDate = new Date(newDate.getDate() + i);
