@@ -5,10 +5,12 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const e = require("express");
 
 let givenDate = process.argv[2];
+
 const csvFilePath = 'fullLocation.csv';
 
 let countNum = 0;
 
+// date setting
 for (let i = 0; i < 31; i++) {
     countNum = countNum + 1;
     const newDate = new Date(givenDate+"-01");
@@ -37,6 +39,8 @@ for (let i = 0; i < 31; i++) {
         ],
         append: false
     });
+
+    // csv file parse
     fs.createReadStream(csvFilePath)
         .pipe(csv({ separator: ',', headers: false }))
         .on('data', (row) => {
