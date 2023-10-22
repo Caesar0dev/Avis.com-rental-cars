@@ -49,7 +49,7 @@ async function handleScraping() {
                 fs.createReadStream(filePath, {encoding: 'utf8'})
                     .pipe(csv({separator: ',', headers: false}))
                     .on('data', chunk => {
-                        console.log('data-->', chunk)
+                        // console.log('data-->', chunk)
                         data.push(chunk);
                     })
                     .on('end', () => {
@@ -88,7 +88,7 @@ async function handleScraping() {
                         const writeData = [];
 
                         const browser = await puppeteer.launch({
-                            headless: true, // Use the new Headless mode
+                            headless: false, // Use the new Headless mode
                             // ... other options
                         });
 
@@ -111,7 +111,7 @@ async function handleScraping() {
 
                                     if(BasicPayload) {
                                         Digital_Token = request.headers()['digital-token'];
-                                        // console.log("Digital Token >>> ", Digital_Token);
+                                        console.log("Digital Token >>> ", Digital_Token);
                                         Cookie = request.headers().cookie;
                                         // console.log("Cookie >>> ", Cookie);
                                         RecaptchaResponse = request.headers()['g-recaptcha-response'];
@@ -142,7 +142,7 @@ async function handleScraping() {
                         }
 
                         // await delay(3000); // 10,000 milliseconds = 10 seconds
-                        let secModalXPath = '/html/body/div[4]/section/div[1]/div[1]/span';
+                        let secModalXPath = '/html/body/div[4]/section/div[2]/div/div[1]/form/div[2]/div/div/div[2]/div/div/div/div/h4/span';
                         try {
                             const [secModalClose] = await page.$x(secModalXPath);
                             await secModalClose.click({timeout:300000});
@@ -171,7 +171,7 @@ async function handleScraping() {
                         await findButton.click({timeout: 300000});
 
                         await delay(3000); // 10,000 milliseconds = 10 seconds
-
+                        
                         await fetch("https://www.budget.com/webapi/reservation/vehicles", {
                             "headers": {
                                 "accept": "application/json, text/plain, */*",
@@ -186,19 +186,19 @@ async function handleScraping() {
                                 "g-recaptcha-response": RecaptchaResponse,
                                 "initreservation": "true",
                                 "locale": "en",
-                                "password": "BUDGETCOM",
+                                "password": "BUDCOM",
                                 "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
                                 "sec-ch-ua-mobile": "?0",
                                 "sec-ch-ua-platform": "\"Windows\"",
                                 "sec-fetch-dest": "empty",
                                 "sec-fetch-mode": "cors",
                                 "sec-fetch-site": "same-origin",
-                                "username": "BUDGETCOM",
+                                "username": "BUDCOM",
                                 "cookie": Cookie,
                                 "Referer": "https://www.budget.com/en/home",
                                 "Referrer-Policy": "strict-origin-when-cross-origin"
                             },
-                            "body": "{\"rqHeader\":{\"brand\":\"\",\"locale\":\"en_US\"},\"nonUSShop\":false,\"pickInfo\":\""+searchKey+"\",\"pickCountry\":\"US\",\"pickDate\":\""+start_date+"\",\"pickTime\":\"12:00 PM\",\"dropInfo\":\""+searchKey+"\",\"dropDate\":\""+end_date+"\",\"dropTime\":\"12:00 PM\",\"couponNumber\":\"\",\"couponInstances\":\"\",\"couponRateCode\":\"\",\"discountNumber\":\"\",\"rateType\":\"\",\"residency\":\"US\",\"age\":25,\"wizardNumber\":\"\",\"lastName\":\"\",\"userSelectedCurrency\":\"\",\"selDiscountNum\":\"\",\"promotionalCoupon\":\"\",\"preferredCarClass\":\"\",\"membershipId\":\"\",\"noMembershipAvailable\":false,\"corporateBookingType\":\"\",\"enableStrikethrough\":\"true\",\"picLocTruckIndicator\":false,\"amazonGCPayLaterPercentageVal\":\"\",\"amazonGCPayNowPercentageVal\":\"\",\"corporateEmailID\":\"\"}",
+                            "body": "{\"rqHeader\":{\"brand\":\"\",\"locale\":\"en_US\"},\"nonUSShop\":true,\"pickInfo\":\""+searchKey+"\",\"pickDate\":\""+start_date+"\",\"pickTime\":\"12:00 PM\",\"dropInfo\":\""+searchKey+"\",\"dropDate\":\""+end_date+"\",\"dropTime\":\"12:00 PM\",\"couponNumber\":\"\",\"couponInstances\":\"\",\"couponRateCode\":\"\",\"discountNumber\":\"\",\"rateType\":\"\",\"residency\":\"US\",\"age\":25,\"wizardNumber\":\"\",\"lastName\":\"\",\"userSelectedCurrency\":\"\",\"selDiscountNum\":\"\",\"promotionalCoupon\":\"\",\"preferredCarClass\":\"\",\"membershipId\":\"\",\"noMembershipAvailable\":false,\"corporateBookingType\":\"\",\"enableStrikethrough\":\"true\",\"amazonGCPayLaterPercentageVal\":\"\",\"amazonGCPayNowPercentageVal\":\"\",\"corporateEmailID\":\"\"}",
                             "method": "POST"
                         })
                             .then(response => {
@@ -210,14 +210,17 @@ async function handleScraping() {
                             })
                             .then(data => {
                                 // handle the response data here
-                                // console.log(data.vehicleSummaryList);
+                                console.log(data.vehicleSummaryList);
                                 const infos = data.vehicleSummaryList;
                                 for (let num = 0; num < infos.length; num++) {
                                     const info = infos[num];
+                                    console.log("------------------------- info -------------------------");
+                                    console.log(info);
+                                    console.log("--------------------------------------------------------");
                                     if (info.payLaterRate) {
                                         // console.log("info>>> ", info);
                                         carName = info.make;
-                                        // console.log("Name >>> ", carName);
+                                        console.log("Name >>> ", carName);
                                         carDesc = info.makeModel;
                                         // console.log("Type >>> ", carDesc);
                                         // const payLater = info.payLaterRate.amount;
