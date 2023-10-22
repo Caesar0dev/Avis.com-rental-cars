@@ -6,7 +6,7 @@ const e = require("express");
 
 let givenDate = process.argv[2];
 
-const csvFilePath = 'fullLocation.csv';
+// const csvFilePath = 'budgetLocation.csv';
 
 let countNum = 0;
 
@@ -254,7 +254,7 @@ async function handleScraping() {
             }
         }
 
-        const files = 'fullLocation.csv'; // Example file paths
+        const files = 'budgetLocation.csv'; // Example file paths
         await processFilesSequentially(files);
 
     }
