@@ -6,15 +6,12 @@ const e = require("express");
 
 let givenDate = process.argv[2];
 
-// const csvFilePath = 'avisLocatoin.csv';
-
 let countNum = 0;
 
 async function handleScraping() {
     for (let i = 0; i < 30; i++) {
         console.log(i);
         const newDate = new Date(givenDate + "-01");
-        // console.log("newDate >>> ", newDate);
         newDate.setDate(newDate.getDate() + i);
         const startDate = newDate.toISOString().split('T')[0];
         const start_date = startDate.split("-")[1] + "/" + startDate.split("-")[2] + "/" + startDate.split("-")[0];
@@ -66,7 +63,6 @@ async function handleScraping() {
                 const data = await readFileSequentially(filePaths);
                 for (const row of data) {
                     console.log("row >>> ", row);
-                    // console.log(`Content of ${filePaths}:`, data);
                     const searchKey = row[3];
                     const state = row[0];
                     const city = row[1];
@@ -104,18 +100,13 @@ async function handleScraping() {
                             if (!request.isNavigationRequest()) {
                                 // It's an AJAX request
                                 if (request.url().includes('https://www.avis.com/webapi/reservation/vehicles')) {
-                                    // console.log("request >>> ", request.headers())
 
                                     BasicPayload = request.postData();
-                                    // console.log("Payload >>> ", BasicPayload);
 
                                     if(BasicPayload) {
                                         Digital_Token = request.headers()['digital-token'];
-                                        // console.log("Digital Token >>> ", Digital_Token);
                                         Cookie = request.headers().cookie;
-                                        // console.log("Cookie >>> ", Cookie);
                                         RecaptchaResponse = request.headers()['g-recaptcha-response'];
-                                        // console.log("Recaptcha Response >>> ", RecaptchaResponse);
                                     }
                                 }
                             }
@@ -210,24 +201,16 @@ async function handleScraping() {
                             })
                             .then(data => {
                                 // handle the response data here
-                                // console.log(data.vehicleSummaryList);
                                 const infos = data.vehicleSummaryList;
                                 for (let num = 0; num < infos.length; num++) {
                                     const info = infos[num];
                                     if (info.payLaterRate) {
-                                        // console.log("info>>> ", info);
                                         carName = info.make;
-                                        // console.log("Name >>> ", carName);
                                         carDesc = info.makeModel;
-                                        // console.log("Type >>> ", carDesc);
-                                        // const payLater = info.payLaterRate.amount;
-                                        // console.log("payLater >>> ", payLater);
                                         payLaterAmount = info.payLaterRate.amount;
-                                        // console.log("payLaterAmount >>> ", payLaterAmount);
                                         payLaterTotalAmount = info.payLaterRate.totalRateAmount;
                                         countNum = countNum + 1;
                                         csvRow[num] = {'Code': searchKey, 'Name': carName, 'Type': carDesc, 'PayLater': payLaterAmount, 'PayLaterTotal': payLaterTotalAmount, 'State': state, 'City': city, 'Full Location': fullLocation, 'URL': link}
-                                        // console.log("csvRow[", num, "] = ", csvRow[num]);
                                         writeData.push(csvRow[num]);
 
                                         // Write data to CSV file
@@ -254,7 +237,7 @@ async function handleScraping() {
             }
         }
 
-        const files = 'avisLocation.csv'; // Example file paths
+        const files = 'avisLocation.csv';
         await processFilesSequentially(files);
 
     }
